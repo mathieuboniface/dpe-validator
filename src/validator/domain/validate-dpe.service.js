@@ -7,7 +7,7 @@ export class DpeValidator {
    */
   validate(dpe) {
     // Check that all enveloppes ar defined
-    return this.#validateEnveloppes(dpe);
+    return this.#validateElements(dpe);
   }
 
   /**
@@ -15,13 +15,18 @@ export class DpeValidator {
    * @param dpe {FullDpe}
    * @return {ValidationError[]}
    */
-  #validateEnveloppes(dpe) {
+  #validateElements(dpe) {
     /** @type(ValidationError[]) **/
     const errors = [];
 
-    const collections = ['mur', 'plancher_bas', 'plancher_haut', 'baie_vitree', 'porte'];
-
-    const enveloppe = dpe.logement.enveloppe;
+    const collections = [
+      'mur',
+      'plancher_bas',
+      'plancher_haut',
+      'baie_vitree',
+      'porte',
+      'ventilation'
+    ];
 
     if (Number(dpe.administratif.enum_modele_dpe_id) !== 1) {
       errors.push({
@@ -35,18 +40,19 @@ export class DpeValidator {
     }
 
     collections.forEach((collection) => {
+      const element = ['ventilation'].includes(collection) ? dpe.logement : dpe.logement.enveloppe;
       const collectionName = `${collection}_collection`;
 
       if (
-        !enveloppe[collectionName] ||
-        !enveloppe[collectionName][collection] ||
-        !Array.isArray(enveloppe[collectionName][collection])
+        !element[collectionName] ||
+        !element[collectionName][collection] ||
+        !Array.isArray(element[collectionName][collection])
       ) {
         errors.push({
           code: ValidationErrorCode[`NO_${collection.toUpperCase()}`],
           level: ValidationErrorLevel.ERROR
         });
-      } else if (enveloppe[collectionName][collection].length === 0) {
+      } else if (element[collectionName][collection].length === 0) {
         errors.push({
           code: ValidationErrorCode[`EMPTY_${collection.toUpperCase()}`],
           level: ValidationErrorLevel.WARNING

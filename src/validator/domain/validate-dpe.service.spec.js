@@ -33,14 +33,18 @@ describe('Dpe validator tests', () => {
     ]);
   });
 
-  it.each(['mur', 'plancher_bas', 'plancher_haut', 'baie_vitree', 'porte'])(
+  it.each(['mur', 'plancher_bas', 'plancher_haut', 'baie_vitree', 'porte', 'ventilation'])(
     'should return error when DPE has no "%s"',
     (collection) => {
       let errors;
       const collectionName = `${collection}_collection`;
 
       const dpe = DpeDataFixture.aFullDpe();
-      dpe.logement.enveloppe[collectionName] = undefined;
+      if (collectionName.includes('ventilation')) {
+        dpe.logement[collectionName] = undefined;
+      } else {
+        dpe.logement.enveloppe[collectionName] = undefined;
+      }
 
       errors = service.validate(dpe);
       expect(errors).toStrictEqual([
@@ -50,8 +54,13 @@ describe('Dpe validator tests', () => {
         }
       ]);
 
-      dpe.logement.enveloppe[collectionName] = {};
-      dpe.logement.enveloppe[collectionName][collection] = undefined;
+      if (collectionName.includes('ventilation')) {
+        dpe.logement[collectionName] = {};
+        dpe.logement[collectionName][collection] = undefined;
+      } else {
+        dpe.logement.enveloppe[collectionName] = {};
+        dpe.logement.enveloppe[collectionName][collection] = undefined;
+      }
 
       errors = service.validate(dpe);
       expect(errors).toStrictEqual([
@@ -61,7 +70,11 @@ describe('Dpe validator tests', () => {
         }
       ]);
 
-      dpe.logement.enveloppe[collectionName][collection] = {};
+      if (collectionName.includes('ventilation')) {
+        dpe.logement[collectionName][collection] = {};
+      } else {
+        dpe.logement.enveloppe[collectionName][collection] = {};
+      }
 
       errors = service.validate(dpe);
       expect(errors).toStrictEqual([
@@ -73,14 +86,19 @@ describe('Dpe validator tests', () => {
     }
   );
 
-  it.each(['mur', 'plancher_bas', 'plancher_haut', 'baie_vitree', 'porte'])(
+  it.each(['mur', 'plancher_bas', 'plancher_haut', 'baie_vitree', 'porte', 'ventilation'])(
     'should return warning when DPE has empty "%s"',
     (collection) => {
       let errors;
       const collectionName = `${collection}_collection`;
 
       const dpe = DpeDataFixture.aFullDpe();
-      dpe.logement.enveloppe[collectionName][collection] = [];
+      if (collectionName.includes('ventilation')) {
+        dpe.logement[collectionName][collection] = [];
+      } else {
+        console.log(collectionName);
+        dpe.logement.enveloppe[collectionName][collection] = [];
+      }
 
       errors = service.validate(dpe);
       expect(errors).toStrictEqual([
