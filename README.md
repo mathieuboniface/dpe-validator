@@ -32,7 +32,7 @@ This Javascript library provide some utilities to valide a DPE
 
 ## How to use it
 
-- `npm install dpe-validator --save`
+- `npm install dpevalidator --save`
 - A dpe can nom be analyzed based on its json :
 
 ```javascript
